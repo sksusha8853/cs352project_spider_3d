@@ -16,7 +16,8 @@ using namespace std;
 
 //Global Control Variables
 float ang = 5, ang2 = 325, ang3 = 320;
-int kf1 =0, jp =0, jpb=0, xt=+5, k1=0, k2=0, p=0,tr=3; //change texture background
+int kf1 =0, jp =+5, jpb=0, xt=1, k1=0, k2=0, p=0,tr=3; //change texture background
+int flag=0;
 //3D Objects
 GLUquadric *quad;
 GLUquadricObj *leg;
@@ -29,11 +30,11 @@ void display();
 int LoadGLTextures(){
     // texture for spider
     texture[2] = SOIL_load_OGL_texture ( "img/spider2.png",SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    // texture for web
-    texture[3] = SOIL_load_OGL_texture ( "img/background.jpg",SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-
+    texture[3] =SOIL_load_OGL_texture ( "img/skin3.png",SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     if(texture[0]==0 ){
        return false;
+
+
     }
     // Typical Texture Generation Using Data From The Bitmap
     glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -176,11 +177,8 @@ public:
         }
     }
 
-    void dieSpider();
-    void aliveSpider();
-    void jumpSpider();
+    
     void walkSpider();
-    void playdeadSpider();
     void movP0();
     void movP1();
     void movP2();
@@ -328,7 +326,7 @@ void Spider::draw(){
     glTranslatef(-2+kf1,-2,4);
     glTranslatef(0,jpb,0);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,texture[2]);
+    glBindTexture(GL_TEXTURE_2D,texture[3]);
     gluQuadricTexture(quad,GL_TRUE);
     gluSphere(quad,4.5,8,8);
     glDisable(GL_TEXTURE_2D);
@@ -341,7 +339,7 @@ void Spider::draw(){
     glTranslatef(4+kf1,-2,4);
     glTranslatef(0,jpb,0);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,texture[2]);
+    glBindTexture(GL_TEXTURE_2D,texture[3]);
     gluQuadricTexture(quad,GL_TRUE);
     gluSphere(quad,3,8,8);
     glDisable(GL_TEXTURE_2D);
@@ -349,22 +347,6 @@ void Spider::draw(){
     glRotatef(-10,1,0,1);
     glRotatef(-115*0.9,1.0,0.0,0.0);
     glRotatef(-115*0.9,0.0,0.0,1.0);
-    glPopMatrix();
-
-}
-
-//Function for the web of the spider.
-void cobweb(){
-    glPushMatrix();
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture ( GL_TEXTURE_2D, texture[tr] );
-    glTranslatef(0,0,-30);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0.0f, 0.0f);     glVertex3f(-50.5,-50.5,8.0);
-            glTexCoord2f(0.0f, 1.0f);         glVertex3f(-50.5,50.5,8.0);
-            glTexCoord2f(0.0f, 0.0f);      glVertex3f(50.5,50.5,8.0);
-        glTexCoord2f(1.0f, 0.0f);   glVertex3f(50.5,-50.5,8.0);
-    glEnd();
     glPopMatrix();
 
 }
@@ -403,29 +385,6 @@ void Spider::setCurvetoB(int numPaw,float curv) {
     }
 }
 
-//function for spider to fold(to die)
-void Spider::dieSpider(){
-    for (int j=getCurveto(0);j<=1;j+=4) {
-        for (int i=0;i<8;i++) {
-            setCurveto(i,j);
-        }//sleep(20);
-        display();
-    }
-}
-//for reviving the spider
-
-void Spider::aliveSpider(){
-    for(int j = getCurveto(0); j<=115; j++){
-        for(int i = 0; i<8; i++){
-            setCurveto(i,-j);
-        }//sleep(10);
-        display();
-    }
-    for(int i=0; i<8; i++){
-        curvA[i]=-115*10/9;
-    }
-}
-
 //functions for the  different types of movement of the paws (legs) of the spider
 
 void Spider::movP0(){
@@ -437,10 +396,10 @@ void Spider::movP1(){
     setCurveto(1,getCurveto(1)-5);
     setCurvetoA(1,getCurvetoA(1)-5);
 }
-
+//changed from -5 to -10
 void Spider::movP2(){
-    setCurveto(2,getCurveto(2)-10);
-    setCurvetoA(2,getCurvetoA(2)-10);
+    setCurveto(2,getCurveto(2)-5);
+    setCurvetoA(2,getCurvetoA(2)-5);
 }
 
 void Spider::movP3(){
@@ -594,7 +553,15 @@ void Spider::walkSpider(){
             if(i==0 || i==2){
                 movP03();
                 display();
-                xt++;
+                if(flag){
+                //0xt=0.05;
+                glTranslatef (0.0, 0, 0.5);
+                }else{
+                    // xt=0.;
+                glTranslatef (0.0, 0, -0.5);
+                }
+                // //kf++;
+                // //xt++;
             }
             setCurveto(0,getCurveto(0)-5); //p0
             setCurvetoA(0,getCurvetoA(0)+5);
@@ -676,7 +643,14 @@ void Spider::walkSpider(){
           if(i==0 || i==2){
             movP13();
             display();
-            xt++;
+            //kf++;
+            if(flag){
+                //0xt=0.05;
+                glTranslatef (0.0, 0, 0.5);
+                }else{
+                    // xt=0.;
+                glTranslatef (0.0, 0, -0.5);
+                }
           }
             setCurveto(1,getCurveto(1)-5);
             setCurvetoA(1,getCurvetoA(1)+5);
@@ -721,108 +695,7 @@ void Spider::walkSpider(){
         return ;
 }
 
-
-
-void Spider::playdeadSpider(){
-    for(int j=0; j<8; j++){
-        setCurvetoA(j,getCurveto(j)-1);
-           
-            display();
-        }
-}
-
-// Function that make spider to JUMP
-
-void Spider::jumpSpider(){
-    int i=0;
-    for(int h =0; h<10; h++){
-        for(int j=0; j<8; j++){
-            setCurveto(j,getCurveto(j)+5);
-            display();
-        }
-    }
-
-    for(int h =0; h<5; h++){
-        for(int j=0; j<8; j++){
-            setCurvetoB(j,getCurvetoB(j)-5);
-            display();
-        }
-    }
-
-    for(int i = 0; i<2; i++){
-        jp--;
-        if(i <= 1){
-        jpb++;
-        }
-        display();
-    }
-
-    for(int i = 0; i<15; i++){
-        jp++;
-        if(i <= 1){
-        jpb--;
-        }
-        display();
-    }
-
-    for(int h =0; h<5; h++){
-        for(int j=0; j<8; j++){
-            setCurvetoA(j,getCurvetoA(j)-5);
-            display();
-        }
-    }
-
-    for(int h =0; h<15; h++){
-        for(int j=0; j<8; j++){
-            setCurvetoA(j,getCurvetoA(j)-5);
-            display();
-        }
-    }
-
-     for(int j=0; j<8; j++){
-        for(int i=0; i<8; i++){
-            setCurveto(j,getCurveto(j)-5);
-            setCurvetoA(j,getCurvetoA(j)+5);
-            display();
-        }
-    }
-
-    for(int i = 0; i<15; i++){
-        jp--;
-        if(i <= 1){
-        jpb++;
-        }
-        display();
-    }
-
-    for(int j=0; j<8; j++){
-       for(int i=0; i<8; i++){
-            setCurveto(j,getCurveto(j)-5);
-            setCurvetoA(j,getCurvetoA(j)+5);
-            display();
-        }
-    }
-
-    for(int j=0; j<8; j++){
-       for(int i=0; i<8; i++){
-            setCurveto(j,getCurveto(j)+5);
-            setCurvetoA(j,getCurvetoA(j)-2);
-            display();
-        }
-    }
-
-    for(int j=0; j<8; j++){
-       for(int i=0; i<1; i++){
-            setCurveto(j,getCurveto(j)-5);
-            setCurvetoA(j,getCurvetoA(j)+5);
-            display();
-        }
-    }
-}
-
 Spider s(1.0);//spider object
- 
- // init function 
 
 void init(void) {
     quad = gluNewQuadric();
@@ -868,10 +741,12 @@ void display(void) {
     glRotatef (ang3, 0.0, 0.0, 1.0);
     glRotatef (ang, 0.0, 1.0, 0.0);
     glRotatef (ang2, 1.0, 0.0, 0.0);
+    //printf("an");
+    //gluLookAt(0.0,0,5,1,2*ang,1,0,1,0);
     s.draw();
     glPopMatrix();
     glPushMatrix();
-    cobweb();
+    //cobweb();
     glPopMatrix();
     glutSwapBuffers();
 }
@@ -882,59 +757,81 @@ void reshape(int w, int h) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(pers,(GLfloat)w/(GLfloat)h, 1.0, 40.0);
+   // gluLookAt(0.0,0,5,1,1,1,0,1,0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef (0.0, 0.0, -10.0);
 }
 
-void idle(){
-}
-
-//MouseClick Function for JUMP(mouse functionality)
-
- void OnMouseClick(int button, int state, int x, int y)
-{
-    switch(button)
-    {
-    
-    case GLUT_RIGHT_BUTTON:
-        if(state==GLUT_DOWN)
-        {
-            s.jumpSpider();
-        }   
-        break;
-    default:
-        break;
-    }
-}
-
-
-// keyboard functionalities for movements of spider and paws of it.
-
-
 void keyboard (unsigned char key, int x, int y){
 
     switch(key) {
        
-         case 'q':
+        //front left
+        case 'q':
+                if(s.getCurvetoB(0)>100) break;
                 s.setCurvetoB(0,s.getCurvetoB(0)+5);
+            break;               
+
+        case 'Q':
+            if(s.getCurvetoB(0)<0) break;
+            s.setCurvetoB(0,s.getCurvetoB(0)-5);
+            // printf("%f\n",s.getCurvetoB(0));
+            break;
+        case 'm':
+                // printf("%f\n",s.getCurveto(0));
+                if(s.getCurveto(0)>0) break;
+                s.setCurveto(0,s.getCurveto(0)+5);
+            break;
+        case 'M':
+                // printf("%f\n",s.getCurveto(0));
+                if(s.getCurveto(0)<-150) break;
+                s.setCurveto(0,s.getCurveto(0)-5);
+            break;
+        case 'z':
+                printf("%f\n",s.getCurvetoA(0));
+                if(s.getCurvetoA(0)>130) break;
+                s.setCurvetoA(0,s.getCurvetoA(0)+5);
+            break;
+        case 'Z':
+                printf("%f\n",s.getCurvetoA(0));
+                if(s.getCurvetoA(0)<15) break;
+                s.setCurvetoA(0,s.getCurvetoA(0)-5);
+            break;
+
+
+        //front right
+        case 'p':
+                if(s.getCurvetoB(1)>100) break;
+                s.setCurvetoB(1,s.getCurvetoB(1)+5);
+            break;
                 
 
+        case 'P':
+            if(s.getCurvetoB(1)<0) break;
+            s.setCurvetoB(1,s.getCurvetoB(1)-5);
+            // printf("%f\n",s.getCurvetoB(0));
             break;
-         case 'w':
+        case 'w':
+                printf("%f\n",s.getCurveto(1));
+                if(s.getCurveto(1)>0) break;
                 s.setCurveto(1,s.getCurveto(1)+5);
             break;
-         case 'e':
-                s.setCurvetoA(2,s.getCurvetoA(2)+5);
+        case 'W':
+                printf("%f\n",s.getCurveto(1));
+                if(s.getCurveto(1)<-150) break;
+                s.setCurveto(1,s.getCurveto(1)-5);
             break;
-        case 'r':
-                s.setCurveto(3,s.getCurveto(3)+5);
+
+        case 'l':
+                printf("%f\n",s.getCurvetoA(1));
+                if(s.getCurvetoA(1)>130) break;
+                s.setCurvetoA(1,s.getCurvetoA(1)+5);
             break;
-        case 't':
-                s.setCurveto(4,s.getCurveto(4)+5);
-            break;
-        case 'h':
-            s.playdeadSpider();
+        case 'L':
+                printf("%f\n",s.getCurvetoA(1));
+                if(s.getCurvetoA(1)<15) break;
+                s.setCurvetoA(1,s.getCurvetoA(1)-5);
             break;
 
          case '.':
@@ -965,42 +862,38 @@ void keyboard (unsigned char key, int x, int y){
         case 27:
             exit(0);
             break;
-        case '1' :
-            s.dieSpider();
-            break;
-        case '2':
-            s.aliveSpider();
-            break;
-       
             
             
         case 'a':
+            flag=1;
             s.walkSpider();
 
             break;
-        case 's' : //push back
-            xt--;
-            
+        case 's' : 
+            flag=0;
+            s.walkSpider();
+            //s.walkSpiderback();
             break;
-//
+
         case '9' :
             pers--;
             break;
-        case 'U':
-            s.movP12();
-            break;
-        case 'Y':
-             s.movP12();
-            break;
-        case 'I':
-             s.movP22();
-            break;
-        case 'H':
-             s.movP32();
-            break;
-        case 'J':
-             s.movP42();
-            break;
+        // case 'U':
+        // //first index denoting leg
+        //     s.movP12();
+        //     break;
+        // case 'Y':
+        //      s.movP12();
+        //     break;
+        // case 'I':
+        //      s.movP22();
+        //     break;
+        // case 'H':
+        //      s.movP32();
+        //     break;
+        // case 'J':
+        //      s.movP42();
+        //     break;
         default:
             return;
     }
@@ -1017,14 +910,9 @@ int main(int argc, char** argv){
     glutDisplayFunc(display);//for display
     glutReshapeFunc(reshape);//for reshaping
     glutKeyboardFunc(keyboard);//keyboard
-    glutMouseFunc(OnMouseClick);//mouse
-
- 
-
     glutMainLoop();
 
     if(!LoadGLTextures()){
-
         return 1; // If Texture Didn't Load Return FALSE
     }
     return 0;
